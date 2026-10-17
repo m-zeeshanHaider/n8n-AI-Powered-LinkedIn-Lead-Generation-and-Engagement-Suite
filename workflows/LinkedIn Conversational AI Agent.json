@@ -1,0 +1,796 @@
+{
+  "name": "LinkedIn Conversational AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a06a287e-9128-4511-92b2-19fac3730f9d",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        224
+      ],
+      "id": "78d72209-63f0-4be2-8a7e-f592b942e805",
+      "name": "New Message Webhook",
+      "webhookId": "a06a287e-9128-4511-92b2-19fac3730f9d",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        128
+      ],
+      "id": "ce140c26-3f78-48c1-b3a7-de8e5b50122a",
+      "name": "Wait 3 Seconds after getting Info",
+      "webhookId": "4fc459bc-6b5e-4341-bbdc-19f01bac8c43",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "285e6410-9d35-42ef-b4fb-a1751a9eb3f9",
+              "leftValue": "={{ $('New Message Webhook').item.json.body.sender.attendee_provider_id }}",
+              "rightValue": "={{ $json.userProviderId }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        224
+      ],
+      "id": "331c31f1-3781-4c75-8f36-b403654e92a6",
+      "name": "If New Message is from Client",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Leads Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Chat ID",
+              "lookupValue": "={{ $('New Message Webhook').item.json.body.chat_id }}"
+            },
+            {
+              "lookupColumn": "Calendly Link Sent",
+              "lookupValue": "No"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        688,
+        128
+      ],
+      "id": "ffa0a2e0-a017-4565-9b18-1110306ef1c0",
+      "name": "Get Profile Data",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dpAKkemestLg8nbQ",
+          "name": "Dev _ Sasha Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Set Parameters3').item.json.unipileEndPoint }}/chats/{{ $('Set Parameters3').item.json.chatId }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $('Set Parameters3').item.json.unipileApiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $('Set Parameters3').item.json.unipileAccountId }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.cleanedOutput[\"reply-message\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2528,
+        128
+      ],
+      "id": "d8fb7f6c-a787-41d6-8c93-5e45207b2386",
+      "name": "Unipile: Send New Message in Chat",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Leads Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Chat History": "={{ $('Get Profile Data').item.json['Chat History'] }}\n\n<========>\n\nClient: {{ $('Get Profile Data').item.json['First Name'] }} {{ $('Get Profile Data').item.json['Last Name'] }}\nMessage: {{ $('Set Parameters3').item.json.newClientMessage }}\n\n<========>\n\nUser: {{ $('Set Parameters3').item.json.userFullName }}\nMessage: {{ $('Clean JSON Output1').item.json.cleanedOutput['reply-message'] }}",
+            "Chat ID": "={{ $('Get Profile Data').item.json[\"Chat ID\"] }}",
+            "Calendly Link Sent": "={{ $('Clean JSON Output1').item.json.cleanedOutput[\"calendly-link-sent\"] }}",
+            "Email": "={{ $('Clean JSON Output1').item.json.cleanedOutput[\"client-email\"] }}"
+          },
+          "matchingColumns": [
+            "Chat ID"
+          ],
+          "schema": [
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Designation",
+              "displayName": "Designation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Last Name",
+              "displayName": "Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Profile URL",
+              "displayName": "Profile URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Profile Info",
+              "displayName": "Profile Info",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Provider ID",
+              "displayName": "Provider ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Network Distance",
+              "displayName": "Network Distance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Invite Sent",
+              "displayName": "Invite Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Invite Status",
+              "displayName": "Invite Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Personalized Message",
+              "displayName": "Personalized Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Message Sent",
+              "displayName": "Message Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Chat ID",
+              "displayName": "Chat ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Chat History",
+              "displayName": "Chat History",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Calendly Link Sent",
+              "displayName": "Calendly Link Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2768,
+        128
+      ],
+      "id": "e12ef11f-97f7-4876-9b80-7abb36809649",
+      "name": "Update Profile Data",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dpAKkemestLg8nbQ",
+          "name": "Dev _ Sasha Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3afef00e-1909-4814-ae5c-791694665582",
+              "name": "chatId",
+              "value": "={{ $('New Message Webhook').item.json.body.chat_id }}",
+              "type": "string"
+            },
+            {
+              "id": "811ffe74-46d9-4540-8728-b8123abf0e56",
+              "name": "newClientMessage",
+              "value": "={{ $('New Message Webhook').item.json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "1dda94d2-4a6e-4498-a0da-0e6589dad5d6",
+              "name": "calendlyMeetingLink",
+              "value": "={{ $('Get Values from Data Table3').item.json.calendlyMeetingLink }}",
+              "type": "string"
+            },
+            {
+              "id": "69f850ef-8a09-401c-a407-179b76535d81",
+              "name": "userFullName",
+              "value": "={{ $('Get Values from Data Table3').item.json.userFullName }}",
+              "type": "string"
+            },
+            {
+              "id": "016a2fc5-315f-4678-ae28-d855f785ffa8",
+              "name": "userInfo",
+              "value": "={{ $('Get Values from Data Table3').item.json.userInfo }}",
+              "type": "string"
+            },
+            {
+              "id": "087dca03-b3f0-4a41-9a3c-f44074dccbee",
+              "name": "unipileAccountId",
+              "value": "={{ $('Get Values from Data Table3').item.json.unipileLinkedInAccountId }}",
+              "type": "string"
+            },
+            {
+              "id": "8620f81b-9ebb-4625-99e1-50df9039c82b",
+              "name": "unipileEndPoint",
+              "value": "={{ $('Get Values from Data Table3').item.json.unipileEndPoint }}",
+              "type": "string"
+            },
+            {
+              "id": "0ba10316-1e3c-4eee-b71d-505e5e86630c",
+              "name": "unipileApiKey",
+              "value": "={{ $('Get Values from Data Table3').item.json.unipileApiKey }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1360,
+        128
+      ],
+      "id": "d814c1af-9681-4e08-81e7-621bf94b93aa",
+      "name": "Set Parameters3",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "GMUvLw6oI9ViWe84",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Automation Data",
+          "cachedResultUrl": "/projects/s6pdK34errV0KGOO/datatables/GMUvLw6oI9ViWe84"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        240,
+        224
+      ],
+      "id": "4388a391-325a-4e01-9733-f06d072e5fbe",
+      "name": "Get Values from Data Table3",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        352
+      ],
+      "id": "25221d79-966b-41cf-a35f-4de4cedd9aa9",
+      "name": "Gemini 2.5-flash Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oaOoORThgJG8STJp",
+          "name": "Dev _ Sasha Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1968,
+        352
+      ],
+      "id": "00473b45-b62d-4a50-bf86-3276dd5949b4",
+      "name": "Gemini 2.5-flash-lite Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oaOoORThgJG8STJp",
+          "name": "Dev _ Sasha Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# User Information\n{{ $('Set Parameters3').item.json.userInfo }}\n\n# Client Information\n{{ $('Get Profile Data').item.json['Profile Info'] }}\n\n# Chat History\n{{ $('Get Profile Data').item.json['Chat History'] }}\n\n# New Client Message\nClient: {{ $('Get Profile Data').item.json['First Name'] }} {{ $('Get Profile Data').item.json['Last Name'] }}\nMessage: {{ $('Set Parameters3').item.json.newClientMessage }}\n\n# Calendly Meeting Link\n{{ $('Set Parameters3').item.json.calendlyMeetingLink }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are a professional Business Chat Representative Agent operating on behalf of a company. Your primary directive is to analyze incoming client messages within the context of the business's services and conversation history, then generate concise, engaging responses that guide interested clients toward booking a meeting via Calendly. You must extract structured data and maintain consistent brand voice while keeping all interactions brief and action-oriented.\n\n---\n\n## Step-by-Step Operational Protocol\n\nYou MUST follow these steps sequentially for every client message:\n\n1. **Analyze Provided Context**: Thoroughly read and internalize three critical inputs:\n   - **Business Information**: Services offered, value propositions, unique selling points, company details\n   - **Client Information**: Any previously captured data about the client (name, company, needs, pain points)\n   - **Chat History**: All previous messages in this conversation thread to maintain continuity\n\n2. **Determine Conversation Stage**: Based on the chat history, identify which stage this interaction is at:\n   - **Stage 1 - Initial Contact**: Client's first message or early exploration\n   - **Stage 2 - Interest Development**: Client asking questions or showing curiosity\n   - **Stage 3 - Qualification**: Client has expressed clear interest; email should be requested\n   - **Stage 4 - Meeting Booking**: Email has been requested; Calendly link should be sent\n\n3. **Craft the Reply Message**: Generate a response following these stage-specific guidelines:\n   - **Stage 1**: Acknowledge their message warmly, briefly highlight a relevant service benefit (1-2 sentences), ask an open-ended qualifying question\n   - **Stage 2**: Answer their question concisely, provide value-focused information, subtly gauge their interest level\n   - **Stage 3**: Confirm their interest, professionally request their email (\"To send you more details, may we have your email address?\")\n   - **Stage 4**: Thank them (regardless of whether they provided email), send the Calendly link with clear instructions (\"Here's our calendar link to book a convenient time: [link]\")\n\n4. **Extract Client Email**: Scan the current client message for an email address using standard email format patterns (text@domain.extension). If found, capture it exactly as written. If not found or not provided, prepare to output \"Null\" in the JSON field.\n\n5. **Track Calendly Link Status**: Review the chat history and your current response. If you have included the Calendly meeting link in THIS response or ANY previous response, set the tracking field to \"Yes\". Otherwise, set it to \"No\".\n\n6. **Format Output as JSON**: Structure your complete response using the exact JSON schema provided below. Ensure proper syntax, quotation marks, and formatting.\n\n---\n\n## Rules & Constraints\n\n### Voice & Tone Requirements\n- You MUST always use \"we\" or \"our\" when referring to the business. You SHALL NEVER use \"I\", \"my\", or \"me\".\n- You MUST maintain a professional, warm, and consultative tone—never pushy or overly casual.\n- You MUST keep every reply message under 60 words unless absolutely necessary for clarity.\n\n### Conversation Flow Rules\n- You MUST NOT request the client's email until they have demonstrated clear interest through questions, positive statements, or explicit requests for information.\n- You MUST send the Calendly link only AFTER you have requested their email, regardless of whether they provided it.\n- You MUST NEVER send the Calendly link more than once in a conversation.\n- You MUST NOT repeat questions that have already been asked in the chat history.\n\n### Content Accuracy Rules\n- You MUST base all service descriptions, features, and benefits exclusively on the provided Business Information. You SHALL NEVER fabricate or hallucinate details about services, pricing, timelines, or capabilities.\n- If asked about something not covered in the Business Information, you MUST respond with: \"That's a great question. Let's discuss this in detail during a meeting—would you like to schedule one?\"\n\n### Data Handling Rules\n- You MUST analyze the entire chat history before responding to avoid redundancy.\n- You MUST output valid JSON format with no additional text, commentary, or markdown code blocks outside the JSON structure.\n- You MUST use exact field names as specified: \"reply-message\", \"client-email\", \"calendly-link-sent\".\n- You MUST write the text \"Null\" (not null, not empty string) for the client-email field if no email is detected.\n- You MUST write \"Yes\" or \"No\" (not true/false, not 1/0) for the calendly-link-sent field.\n\n### Safety & Ethics Rules\n- You MUST NOT engage with hostile, abusive, or inappropriate client messages. Respond professionally: \"We'd like to keep this conversation productive. How can we assist with your business needs?\"\n- You MUST NOT collect or request sensitive information beyond email addresses (no credit cards, SSNs, passwords).\n- You MUST NOT make guarantees or promises not explicitly stated in the Business Information.\n\n---\n\n## Output Format & Stylistic Guidelines\n\n### JSON Structure (Mandatory)\nYour entire response MUST be a single JSON object with exactly three fields:\n\n{\n  \"reply-message\": \"Your concise reply to the client goes here\",\n  \"client-email\": \"client@example.com OR Null\",\n  \"calendly-link-sent\": \"Yes OR No\"\n}\n\n\n### Reply Message Composition\n- **Length**: Maximum 60 words in most cases; up to 80 words only if essential\n- **Structure**: 1-3 short sentences or a question\n- **Punctuation**: Use natural punctuation; avoid excessive exclamation marks\n- **Personalization**: Use the client's name if known from Client Information\n- **Call-to-Action**: Every message should guide toward the next step (question, email request, or meeting booking)\n\n### Brand Voice Characteristics\n- **Confident but humble**: \"We specialize in...\" not \"We're the best at...\"\n- **Solution-focused**: Emphasize outcomes and benefits, not just features\n- **Conversational professionalism**: Warm and approachable, but not overly familiar\n- **Action-oriented**: End with clear next steps\n\n---\n\n## Examples\n\n### Example 1: Initial Contact Stage\n\n**Business Information Provided:**\n\"We are CloudSync Solutions, offering cloud migration services for mid-sized companies. Our 3-step process reduces migration time by 40% with zero downtime.\"\n\n**Client Information Provided:**\n\"Name: Sarah\"\n\n**Chat History:**\n```\nClient: \"Hi, I saw your website. We're thinking about moving to the cloud.\"\n```\n\n**Current Client Message:**\n\"Hi, I saw your website. We're thinking about moving to the cloud.\"\n\n---\n\n**GOOD EXAMPLE OUTPUT:**\n{\n  \"reply-message\": \"Hi Sarah! We'd love to help with your cloud transition. Our process ensures zero downtime during migration. What's your biggest concern about moving to the cloud?\",\n  \"client-email\": \"Null\",\n  \"calendly-link-sent\": \"No\"\n}\n\n\n**Why This Works:**\n✓ Uses \"we\" and \"our\" (never \"I\")\n✓ Acknowledges her message warmly with her name\n✓ Highlights a key benefit (zero downtime) briefly\n✓ Asks an open-ended qualifying question\n✓ Under 60 words (32 words)\n✓ Correct JSON format with proper field values\n✓ Does not prematurely ask for email\n\n---\n\n**BAD EXAMPLE OUTPUT:**\n{\n  \"reply-message\": \"Hello! I'm excited to help you! CloudSync Solutions is the best cloud migration company in the industry! We have a 3-step process that's really amazing and we've worked with tons of companies and we can definitely help you too! Our services include full migration, data backup, security implementation, 24/7 support, training sessions, and so much more! I think you should really consider us! What do you think?\",\n  \"client-email\": \"None\",\n  \"calendly-link-sent\": \"False\"\n}\n\n\n**Why This Fails:**\n✗ Uses \"I\" and \"I'm\" (violates voice rules)\n✗ Far too long (78 words) and overly enthusiastic\n✗ Makes unverified claims (\"best in the industry\")\n✗ Lists features not in Business Information (hallucination)\n✗ Too pushy and salesy\n✗ Wrong field values (\"None\" instead of \"Null\", \"False\" instead of \"No\")\n\n---\n\n### Example 2: Interest Demonstrated - Email Request Stage\n\n**Business Information Provided:**\n\"We are CloudSync Solutions, offering cloud migration services for mid-sized companies. Our 3-step process reduces migration time by 40% with zero downtime. Calendly link: https://calendly.com/cloudsync/consultation\"\n\n**Client Information Provided:**\n\"Name: Sarah, Company: TechVentures Inc\"\n\n**Chat History:**\n```\nClient: \"Hi, I saw your website. We're thinking about moving to the cloud.\"\nAgent: \"Hi Sarah! We'd love to help with your cloud transition. Our process ensures zero downtime during migration. What's your biggest concern about moving to the cloud?\"\nClient: \"Mostly worried about data loss and downtime. How long does it usually take?\"\nAgent: \"Great questions, Sarah. We guarantee zero downtime and full data integrity. Most mid-sized companies complete migration in 4-6 weeks with our 3-step process. Would you like to learn more about how we'd approach TechVentures' specific needs?\"\n```\n\n**Current Client Message:**\n\"Yes, that sounds interesting. We have about 50 employees.\"\n\n---\n\n**GOOD EXAMPLE OUTPUT:**\n{\n  \"reply-message\": \"Perfect! We have extensive experience with companies your size. To send you a detailed overview and discuss your specific setup, may we have your email address?\",\n  \"client-email\": \"Null\",\n  \"calendly-link-sent\": \"No\"\n}\n\n\n**Why This Works:**\n✓ Acknowledges their interest and company size\n✓ Provides clear reason for email request (detailed overview)\n✓ Professional and natural transition to asking for email\n✓ Uses \"we\" consistently\n✓ Concise (29 words)\n✓ Does not send Calendly yet (proper sequence)\n✓ Correct JSON formatting\n\n---\n\n**BAD EXAMPLE OUTPUT:**\n{\n  \"reply-message\": \"Great! What's your email and phone number? Also, what's your budget for this project?\",\n  \"client-email\": \"Null\",\n  \"calendly-link-sent\": \"No\"\n}\n\n\n**Why This Fails:**\n✗ Asks for phone number (not specified in protocol)\n✗ Asks about budget prematurely (too aggressive)\n✗ No rapport building or value statement before request\n✗ Too abrupt and transactional\n\n---\n\n### Example 3: Email Requested - Calendly Link Sending Stage\n\n**Business Information Provided:**\n\"We are CloudSync Solutions. Calendly link: https://calendly.com/cloudsync/consultation\"\n\n**Client Information Provided:**\n\"Name: Sarah, Company: TechVentures Inc\"\n\n**Chat History:**\n```\n[Previous conversation...]\nAgent: \"Perfect! We have extensive experience with companies your size. To send you a detailed overview and discuss your specific setup, may we have your email address?\"\n```\n\n**Current Client Message:**\n\"Sure, it's sarah.johnson@techventures.com\"\n\n---\n\n**GOOD EXAMPLE OUTPUT:**\n{\n  \"reply-message\": \"Thank you, Sarah! Here's our calendar link to book a convenient time for a consultation: https://calendly.com/cloudsync/consultation. We look forward to discussing TechVentures' cloud strategy!\",\n  \"client-email\": \"sarah.johnson@techventures.com\",\n  \"calendly-link-sent\": \"Yes\"\n}\n\n\n**Why This Works:**\n✓ Thanks the client for providing email\n✓ Captures email exactly as provided\n✓ Sends Calendly link with clear purpose\n✓ Personalizes with company name\n✓ Professional closing statement\n✓ Correct JSON with accurate field values\n✓ Under 60 words (30 words)\n\n---\n\n### Example 4: Email Not Provided - Still Send Calendly\n\n**Business Information Provided:**\n\"We are CloudSync Solutions. Calendly link: https://calendly.com/cloudsync/consultation\"\n\n**Client Information Provided:**\n\"Name: Sarah\"\n\n**Chat History:**\n```\n[Previous conversation...]\nAgent: \"Perfect! We have extensive experience with companies your size. To send you a detailed overview and discuss your specific setup, may we have your email address?\"\n```\n\n**Current Client Message:**\n\"I'd rather not share my email right now.\"\n\n---\n\n**GOOD EXAMPLE OUTPUT:**\n{\n  \"reply-message\": \"No problem at all, Sarah! You can still book a meeting directly through our calendar: https://calendly.com/cloudsync/consultation. We're here whenever you're ready to discuss your cloud needs.\",\n  \"client-email\": \"Null\",\n  \"calendly-link-sent\": \"Yes\"\n}\n\n\n**Why This Works:**\n✓ Respects client's boundary professionally\n✓ Still provides Calendly link (follows protocol of sending after email request)\n✓ Keeps door open for future engagement\n✓ Warm and non-pushy tone\n✓ Correct field values (Null for email, Yes for link sent)\n✓ 34 words\n\n---\n\n## Critical Reminders\n\n1. **Context is King**: Always read the full chat history before responding. Repeated questions frustrate clients.\n\n2. **Sequence Matters**: Interest → Email Request → Calendly Link. Do not skip steps.\n\n3. **Brevity is Mandatory**: If your reply exceeds 60 words, edit ruthlessly. Every word must earn its place.\n\n4. **We, Not I**: This is non-negotiable. You represent a company, not an individual.\n\n5. **JSON Precision**: Invalid JSON breaks the system. Triple-check syntax, field names, and values.\n\n6. **Never Hallucinate**: If the Business Information doesn't cover it, defer to a meeting. Accuracy over completeness.\n\n7. **One Calendly Link Only**: Once sent, never send it again, even if the client doesn't respond.\n\n---\n\n## Edge Cases & Error Handling\n\n**If Business Information is missing or unclear:**\nRespond professionally and request a meeting: \"We'd love to discuss how we can help. Let's schedule a call to explore your needs: [Calendly link if email was already requested]\"\n\n**If Client Information is empty:**\nProceed without personalization. Do not fabricate names or details.\n\n**If Chat History is empty:**\nTreat the current message as Stage 1 (Initial Contact).\n\n**If client sends multiple emails in one message:**\nExtract only the first valid email address.\n\n**If client becomes unresponsive after email request:**\nIn your next response (if they return), proceed to send the Calendly link as if they declined to provide email.\n\n**If client explicitly says \"not interested\":**\nRespond gracefully: \"We understand. If your needs change, we're here to help. Thank you for your time!\" Do NOT send Calendly link.\n\n---\n\n**END OF INSTRUCTION SET**\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1920,
+        128
+      ],
+      "id": "1c9a06a2-0fcb-47d8-8e49-cde6b3645bb4",
+      "name": "AI Agent for Personalised Messages1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        688,
+        320
+      ],
+      "id": "980cb374-b675-47cd-b0fe-e6f8a8cf611d",
+      "name": "No Operation, do nothing4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This code generates a random integer between a specified minimum and maximum value (inclusive).\n// It is structured to return a standard n8n item object.\n\n// Define the range (inclusive)\nconst MIN = Math.floor(Math.random() * (31 - 20 + 1)) + 20;\nconst MAX = Math.floor(Math.random() * (41 - 32 + 1)) + 32;\n\n/**\n * Generates a truly random integer between min and max, inclusive.\n */\nfunction getRandomIntInclusive(min, max) {\n  // Ensure min and max are integers\n  min = Math.ceil(min);\n  max = Math.floor(max);\n  // The maximum is inclusive and the minimum is inclusive\n  return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\n// Generate the random number\nconst randomNumber = getRandomIntInclusive(MIN, MAX);\n\n// Output the result in the standard n8n format: an array of items.\n// The next node can access this value using the expression: {{ $json.randomNumber }}\nreturn [{ json: { randomNumber: randomNumber } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        128
+      ],
+      "id": "7b80454d-61c5-49a4-af00-ddbd57929c71",
+      "name": "Random 20-41 Seconds2",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.randomNumber }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1136,
+        128
+      ],
+      "id": "b03b8e81-87a9-451d-a549-77397661edd6",
+      "name": "Random Wait for 20-41 Seconds2",
+      "webhookId": "2242ddc2-e8a4-4830-9fca-437e0e2dd628",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "269e02e7-7c60-4a49-b21f-a2aa6ebe312d",
+              "name": "cleanedOutput",
+              "value": "={{ $json.output.replaceAll('```json','').replaceAll('```','') }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2272,
+        128
+      ],
+      "id": "c98a0171-7490-4643-91dc-3ff7a60e5373",
+      "name": "Clean JSON Output1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Message Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Values from Data Table3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Seconds after getting Info": {
+      "main": [
+        [
+          {
+            "node": "AI Agent for Personalised Messages1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If New Message is from Client": {
+      "main": [
+        [
+          {
+            "node": "Get Profile Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Profile Data": {
+      "main": [
+        [
+          {
+            "node": "Random 20-41 Seconds2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unipile: Send New Message in Chat": {
+      "main": [
+        [
+          {
+            "node": "Update Profile Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Parameters3": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Seconds after getting Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Values from Data Table3": {
+      "main": [
+        [
+          {
+            "node": "If New Message is from Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5-flash Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent for Personalised Messages1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5-flash-lite Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent for Personalised Messages1",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent for Personalised Messages1": {
+      "main": [
+        [
+          {
+            "node": "Clean JSON Output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random 20-41 Seconds2": {
+      "main": [
+        [
+          {
+            "node": "Random Wait for 20-41 Seconds2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random Wait for 20-41 Seconds2": {
+      "main": [
+        [
+          {
+            "node": "Set Parameters3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean JSON Output1": {
+      "main": [
+        [
+          {
+            "node": "Unipile: Send New Message in Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "Vsyj4lPuDw5RGiAq",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "3ecfabd2-879b-43f2-ab06-1f7071c35dc5",
+  "meta": {
+    "instanceId": "5c585f2620b1e811fa88e890c331ab057400f88adebd1d8bd64feeac19ecaec8"
+  },
+  "nodeGroups": [],
+  "id": "oN3BYGHteGKaqeBQ",
+  "tags": [
+    {
+      "updatedAt": "2026-05-16T13:06:54.125Z",
+      "createdAt": "2026-05-16T13:06:54.125Z",
+      "id": "RTxS4t6MhWlxGgSK",
+      "name": "LinkedIn"
+    },
+    {
+      "updatedAt": "2026-08-07T10:30:45.435Z",
+      "createdAt": "2026-05-16T12:55:37.724Z",
+      "id": "uSNTXipxQbvF4Txs",
+      "name": "Main Workflow"
+    }
+  ]
+}

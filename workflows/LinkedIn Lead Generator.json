@@ -1,0 +1,1212 @@
+{
+  "name": "LinkedIn Lead Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "503b2e6b-4a21-4ed1-ab08-f1debddf3f59",
+              "name": "Designation",
+              "value": "={{ $('Search Query Trigger').item.json.Designation }}",
+              "type": "string"
+            },
+            {
+              "id": "e098775a-b326-4e6e-ba61-13610acf0513",
+              "name": "Industry",
+              "value": "={{ $('Search Query Trigger').item.json.Industry }}",
+              "type": "string"
+            },
+            {
+              "id": "0a104499-2160-43f2-bac7-71d34e1c3e35",
+              "name": "City",
+              "value": "={{ $('Search Query Trigger').item.json.City }}",
+              "type": "string"
+            },
+            {
+              "id": "8d8d187d-ae0e-4121-a004-271051050ed1",
+              "name": "site",
+              "value": "site:linkedin.com/in",
+              "type": "string"
+            },
+            {
+              "id": "0a5b9b58-b2f5-4d0d-aa80-e4178c26b123",
+              "name": "currentStartIndex",
+              "value": "=1",
+              "type": "number"
+            },
+            {
+              "id": "1a6422db-8b39-4077-b971-68a1541c84fd",
+              "name": "maxPages",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "0ba10316-1e3c-4eee-b71d-505e5e86630c",
+              "name": "googleApiKey",
+              "value": "={{ $json.googleApiKey }}",
+              "type": "string"
+            },
+            {
+              "id": "8620f81b-9ebb-4625-99e1-50df9039c82b",
+              "name": "searchEngineCx",
+              "value": "={{ $json.searchEngineCx }}",
+              "type": "string"
+            },
+            {
+              "id": "67e69d45-8fbc-4f41-a969-a133b150104d",
+              "name": " unipileLinkedInAccountId",
+              "value": "={{ $json.unipileLinkedInAccountId }}",
+              "type": "string"
+            },
+            {
+              "id": "fbd0ad53-6b5f-413b-aaf2-02a5eb4936ed",
+              "name": " unipileApiKey",
+              "value": "={{ $json.unipileApiKey }}",
+              "type": "string"
+            },
+            {
+              "id": "1e5bebb2-e34c-4d52-8aa4-577992527f84",
+              "name": " unipileEndPoint",
+              "value": "={{ $json.unipileEndPoint }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4448,
+        704
+      ],
+      "id": "c10635f1-c649-47a8-bd58-7d907dc5608f",
+      "name": "Set Parameters",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        6016,
+        704
+      ],
+      "id": "ca7b5ae1-5db4-4bdb-a67b-4e0d03ddc610",
+      "name": "Loop Over Profiles",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        7136,
+        848
+      ],
+      "id": "16cfad41-ba02-46ad-b3e1-75a973a8dc8d",
+      "name": "Gemini 2.5-flash Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oaOoORThgJG8STJp",
+          "name": "Dev _ Sasha Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        7392,
+        848
+      ],
+      "id": "f8f8f6ee-8ebf-4274-8468-666bf625dcdb",
+      "name": "Gemini 2.5-flash-lite Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oaOoORThgJG8STJp",
+          "name": "Dev _ Sasha Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# User Information\nFirst Name: {{ $('Unipile: Get User Profile Info').item.json.first_name }}\nLast Name: {{ $('Unipile: Get User Profile Info').item.json.last_name }}\nHeadline: {{ $('Unipile: Get User Profile Info').item.json.headline }}\nAbout: {{ $('Unipile: Get User Profile Info').item.json.summary }}\n\n# Client Profile Information\nFirst Name: {{ $json.first_name }}\nLast Name: {{ $json.last_name }}\nHeadline: {{ $json.headline }}\nAbout: {{ $json.summary }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are an expert LinkedIn Outreach Strategist and Message Architect, specializing in crafting highly personalized, engaging connection requests and direct messages. Your primary directive is to analyze your LinkedIn business and the target client profile information provided, extract meaningful insights, and generate a strategic sequence of messages (one connection request and three follow-up messages) that offer business services, demonstrate genuine interest, and facilitate professional relationship-building. Every message must respect strict character limits and convey a genuine human tone.\n\n\n# Step-by-Step Operational Protocol for B2B Outreach\n\n## Conduct Deep Business & Client Analysis\n\nSystematically analyze the provided information about your business and the target client. Your primary objective is to identify 3-5 \"relevance hooks\"—specific, concrete points where your business capabilities align with the client's needs, challenges, or goals.\n\nExamples include:\n- **Industry-specific pain points** your business solves that the client likely faces\n- **Similar client success stories** (same industry, company size, or challenge)\n- **Relevant timing triggers** (recent funding, expansion, leadership changes, new initiatives)\n- **Technology stack or tools** the client uses that you integrate with or optimize\n- **Regulatory/compliance challenges** in their industry you address\n- **Growth stage alignment** (scaling challenges, market entry, operational efficiency)\n- **Geographic or market overlap** (serving same regions, customer bases)\n- **Content they've shared** indicating specific interests or challenges\n- **Recent company announcements** (hiring, product launches) that signal needs\n\nPrioritize relevance hooks that are:\n- **Specific and evidence-based** (not assumptions)\n- **Recent or current** (tied to their present situation)\n- **Directly connected** to measurable business outcomes\n- **Aligned with your core value proposition**\n\n## Draft Connection Request (Max 180 Characters)\n\nWrite a concise, business-focused connection request. You MUST reference at least one specific relevance hook that shows why this conversation matters to the client.\n\n**Avoid generic phrases like:**\n- \"We'd love to connect\"\n- \"We help companies like yours\"\n- \"We have something that might interest you\"\n\n**Format:** [Relevance hook] + [Specific value proposition tied to their need]\n\n**Example structure:**\n\"Noticed [Company] is [specific trigger/challenge]. We've helped [similar companies] achieve [specific outcome]—thought it might be relevant.\"\n\nCount characters meticulously—LinkedIn counts spaces and punctuation. This message becomes the \"connection-message\" key.\n\n## Draft First DM (Max 500 Characters)\n\nAssuming the connection was accepted, write the first direct message.\n\n**Structure:**\n1. **Brief, warm greeting** (avoid over-formality)\n2. **Thank them for connecting** (genuine, not perfunctory)\n3. **Lead with a specific relevance hook** – reference something concrete about their profile, challenge, or recent activity\n4. **Establish credibility through proof** – mention a similar client result, case study, or specific capability (with numbers if possible)\n5. **Focus on their outcome, not your service** – what changes for them, not what your business do\n6. **End with offering a business service** tied to their specific situation and needs that invites a meeting booking response\n\n**Tone:** Professional but conversational. Sound like a peer who understands their world, not a vendor pitching.\n\n**Avoid:**\n- Feature dumps or service lists\n- \"We offer X, Y, Z...\"\n- Asking for meetings too soon\n- Vague value propositions\n\nThis message becomes the \"first-message\" key.\n\n## Draft Follow-Up Message 1 (Max 500 Characters)\n\nWrite a value-first follow-up sent 3-5 days after the first DM if no response, or as a natural continuation if there was engagement.\n\n**Structure:**\n1. **Lead with value** – share something useful with no strings attached:\n   - Relevant industry insight or trend analysis\n   - Specific resource (article, tool, framework) that addresses their challenge\n   - Introduction to a useful contact\n   - Quick observation or data point about their market/competitors\n2. **Tie it back to their specific situation** – make it clear why this matters to them\n3. **No ask, just give** – make it easy to engage without pressure\n4. **End with a soft question** about their perspective on the value you shared\n\n**Example approach:**\n\"Came across [specific resource/insight] about [their challenge]. Reminded us of [their situation]. [One sentence of value]. Curious if you've seen [related trend] in your space?\"\n\nThis message becomes the \"first-follow-up-message\" key.\n\n## Draft Follow-Up Message 2 (Max 500 Characters)\n\nWrite a final, graceful follow-up sent 5-7 days after Follow-Up 1.\n\n**Structure:**\n1. **Acknowledge reality gracefully** – recognize they're busy without sounding passive-aggressive\n2. **Reinforce the relevance hook** one last time – briefly remind them why this could matter\n3. **Provide a clear, low-stakes option** – make it easy to re-engage or politely decline\n4. **End with a professional exit** that leaves the door open\n\n**Example approach:**\n\"Know things get busy—especially during [their season/challenge]. If [specific outcome] is still a priority, happy to share [specific resource/approach]. Otherwise, feel free to reach out if timing improves. Either way, wishing you success with [their initiative].\"\n\n**Tone:** Respectful, professional, not desperate. Sound like someone who has other clients but genuinely wants to help if there's fit.\n\nThis message becomes the \"second-follow-up-message\" key.\n\n---\n\n# Stylistic Guidelines\n\n## Tone\n\nMessages should sound:\n- **Professional but human** – use natural language, contractions where appropriate\n- **Knowledgeable without arrogance** – demonstrate expertise through insights, not claims\n- **Consultative, not sales-y** – sound like an advisor, not a vendor\n- **Confident but respectful** – assume value but don't demand attention\n\nVary sentence length. Avoid sounding scripted or template-driven. The reader should feel \"this business understands my needs,\" not \"this business is trying to sell me something.\"\n\n## Personalization Markers\n\nEnsure each message contains at least one detail that proves you've done your homework:\n- **Not just:** \"We see you work in [industry]\"\n- **Instead:** \"Noticed [Company] recently [specific action]—that usually signals [specific challenge you solve]\"\n\nThe client should think: \"This business gets my specific situation\" not \"This is a mass outreach campaign.\"\n\n---\n\n# Rules & Constraints\n\n## You MUST NEVER use \"I\"; always use \"We\" in your sentences.\n\n## You MUST never fabricate or hallucinate business or client details. Only use information explicitly provided by the user.\n\n## You MUST strictly adhere to character limits:\n- **Connection Request:** 180 characters maximum\n- **All other messages:** 500 characters maximum\n- Character counts include spaces and punctuation\n\n## You MUST include at least one specific relevance hook (how your business addresses their specific need) in the connection request and first DM. Generic value propositions are unacceptable.\n\n## You MUST end each message with a conversational element designed to encourage response—either a question, observation, or value offer tied to their specific situation.\n\n## You MUST NOT use:\n- Pushy or manipulative language (\"limited time offer,\" \"don't miss out\")\n- Generic pitches that could apply to any company\n- Excessive flattery or insincere compliments\n- Phrases like \"just checking in\" or \"bumping this up\" without adding value\n- Meeting requests in the connection request or first message\n\n## You MUST maintain a peer-to-peer, consultative tone. Avoid:\n- Corporate jargon or buzzword overload (\"synergy,\" \"leverage,\" \"paradigm\")\n- Overly formal language that sounds like a press release\n- Vendor-speak that positions you as subordinate\n\n## You MUST NOT make assumptions about:\n- The client's budget, decision-making authority, or timeline\n- Their willingness to engage or interest level beyond what's evident\n- Specific problems they have unless supported by evidence (their content, news, industry context)\n\n## You MUST structure follow-up messages to provide genuine value first, not just follow up for the sake of persistence.\n\n## You MUST output your response in the following JSON format:\n\n{\n  \"connection-message\": \"Connection request message\",\n  \"first-message\": \"First DM Message\",\n  \"first-follow-up-message\": \"First Follow-Up DM Message\",\n  \"second-follow-up-message\": \"Second Follow-Up DM Message\"\n}\n\n---\n\n# Key Principle\n\nEvery message should demonstrate that this isn't random outreach—your business has specific capabilities that address the client's specific situation, supported by evidence and delivered with genuine intent to help them achieve their goals. The conversation should feel like a natural business discussion between peers, not a sales pitch.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        7200,
+        656
+      ],
+      "id": "d234c15e-ef1a-4db1-99d8-b3384c576414",
+      "name": "AI Agent for Personalised Messages",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "269e02e7-7c60-4a49-b21f-a2aa6ebe312d",
+              "name": "cleanedOutput",
+              "value": "={{ $json.output.replaceAll('```json','').replaceAll('```','') }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7552,
+        656
+      ],
+      "id": "f97ad90a-55ea-411b-9acc-4ba087f48d0b",
+      "name": "Clean JSON Output",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $('Set Parameters').item.json.googleApiKey }}"
+            },
+            {
+              "name": "cx",
+              "value": "={{ $('Set Parameters').item.json.searchEngineCx }}"
+            },
+            {
+              "name": "q",
+              "value": "={{ $('Set Parameters').item.json.Designation.toLowerCase().replaceAll(' ','+') }}+in+{{ $('Set Parameters').item.json.Industry.toLowerCase().replaceAll(' ','+') }}+industry+in+{{ $('Set Parameters').item.json.City.toLowerCase().replaceAll(' ','+') }}+city+{{ $('Set Parameters').item.json.site }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5568,
+        704
+      ],
+      "id": "2f60012d-5039-47a9-a218-7d219c80b13e",
+      "name": "Search Google for Leads",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Leads Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Designation": "={{ $('Set Parameters').item.json.Designation }}",
+            "Industry": "={{ $('Set Parameters').item.json.Industry }}",
+            "City": "={{ $('Set Parameters').item.json.City }}",
+            "First Name": "={{ $('Unipile: Get Profile Info').item.json.first_name }}",
+            "Last Name": "={{ $('Unipile: Get Profile Info').item.json.last_name }}",
+            "Profile URL": "={{ $('Loop Over Profiles').item.json.profileLink }}",
+            "Profile Info": "=Headline: {{ $('Unipile: Get Profile Info').item.json.headline }}\n\nAbout: {{ $('Unipile: Get Profile Info').item.json.summary }}",
+            "Provider ID": "={{ $('Unipile: Get Profile Info').item.json.provider_id }}",
+            "Network Distance": "={{ $('Unipile: Get Profile Info').item.json.network_distance }}",
+            "Invite Sent": "No",
+            "Personalized Message": "={{ $json.cleanedOutput[\"first-message\"] }}",
+            "Message Sent": "No",
+            "Chat ID": "Null",
+            "Chat History": "Null",
+            "Invite Status": "NA",
+            "Email": "Null",
+            "Calendly Link Sent": "No"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Designation",
+              "displayName": "Designation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Name",
+              "displayName": "Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Profile URL",
+              "displayName": "Profile URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Profile Info",
+              "displayName": "Profile Info",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Provider ID",
+              "displayName": "Provider ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Network Distance",
+              "displayName": "Network Distance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invite Sent",
+              "displayName": "Invite Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invite Status",
+              "displayName": "Invite Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Personalized Message",
+              "displayName": "Personalized Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message Sent",
+              "displayName": "Message Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Chat ID",
+              "displayName": "Chat ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Chat History",
+              "displayName": "Chat History",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Calendly Link Sent",
+              "displayName": "Calendly Link Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        7776,
+        656
+      ],
+      "id": "f98aa262-6e66-4b97-9eb4-cf0cfa02855e",
+      "name": "Append to LinkedIn Leads Data Sheet",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "executeOnce": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dpAKkemestLg8nbQ",
+          "name": "Dev _ Sasha Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "GMUvLw6oI9ViWe84",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Automation Data",
+          "cachedResultUrl": "/projects/s6pdK34errV0KGOO/datatables/GMUvLw6oI9ViWe84"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        4224,
+        704
+      ],
+      "id": "4a860a7b-7842-4e69-86a8-c5baf256f053",
+      "name": "Get Values from Data Table",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4896,
+        704
+      ],
+      "id": "4db236cf-3482-447f-b482-31821ec1d96d",
+      "name": "Wait 5 Seconds after getting Identifier",
+      "webhookId": "3916c64a-aeb0-4f10-8199-158b25348ee2",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the response data\nconst response = $input.first().json;\nconst items = response.items || [];\n\n// Track pagination info\nlet nextStartIndex = 1;\nif (response.queries && response.queries.nextPage && response.queries.nextPage[0]) {\n  nextStartIndex = response.queries.nextPage[0].startIndex;\n}\n// Calculate if we should continue (Google only allows up to 100 results)\nconst hasMoreResults = nextStartIndex = 100;\n// Process the items and include pagination info in each item\nconst results = items.map(item => {\n  return {\n    profileLink: item.link || null,\n    // Add pagination info to each item\n    startIndex: nextStartIndex,\n    hasMoreResults: hasMoreResults\n  };\n});\n\n// If there are no more results, return atleast one item with pagination index\nif(results.length === 0){\n  return [{\n    json: {\n      profileLink: null,\n      // Add pagination info to each item\n      startIndex: nextStartIndex,\n      hasMoreResults: false\n    }\n  }]\n}\n\n// Return the processed results\nreturn results.map(r => ({json: r}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5792,
+        704
+      ],
+      "id": "29c068b5-6932-41f7-9ff9-edaae498dd47",
+      "name": "Extract Profile Link",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        8016,
+        816
+      ],
+      "id": "737bf0b1-1518-495a-b9b4-22d7aed6d8bb",
+      "name": "Wait 5 Seconds after Append",
+      "webhookId": "26beaab8-7473-4f60-8777-e1c2a891b648",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        6272,
+        448
+      ],
+      "id": "d40bb77d-a040-4d87-a261-c8542f6e19de",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json[\" unipileEndPoint\"] }}/accounts/{{ $json[\" unipileLinkedInAccountId\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $json[\" unipileApiKey\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4672,
+        704
+      ],
+      "id": "7c9d68e6-3378-4ca4-a573-c0e08286a8a4",
+      "name": "Unipile: Get User Identifier",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Set Parameters').item.json[\" unipileEndPoint\"] }}/users/{{ $json.profileLink.split('/').last() }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $('Set Parameters').item.json[\" unipileLinkedInAccountId\"] }}"
+            },
+            {
+              "name": "linkedin_sections",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $('Set Parameters').item.json[\" unipileApiKey\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        6272,
+        640
+      ],
+      "id": "a5e1c2e8-5948-4a35-9657-8062873dd4d6",
+      "name": "Unipile: Get Profile Info",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1e1d17f8-70c3-4939-b29c-abe25bc6ba86",
+              "leftValue": "={{ $json.network_distance }}",
+              "rightValue": "OUT_OF_NETWORK",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6592,
+        672
+      ],
+      "id": "46e1573f-d700-485f-a4ea-030ee2727e52",
+      "name": "If Profile is Out of Network",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        6816,
+        784
+      ],
+      "id": "a6d47665-010c-423f-b3bf-fe5e1f6f6d36",
+      "name": "Wait 5 Seconds before New Call",
+      "webhookId": "26beaab8-7473-4f60-8777-e1c2a891b648",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Set Parameters').item.json[\" unipileEndPoint\"] }}/users/{{ $json.connection_params.im.publicIdentifier }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $('Set Parameters').item.json[\" unipileLinkedInAccountId\"] }}"
+            },
+            {
+              "name": "linkedin_sections",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $('Set Parameters').item.json[\" unipileApiKey\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5120,
+        704
+      ],
+      "id": "60aca726-2cbd-4d82-824e-ecfa27bd1bb1",
+      "name": "Unipile: Get User Profile Info",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "GMUvLw6oI9ViWe84",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Automation Data",
+          "cachedResultUrl": "/projects/s6pdK34errV0KGOO/datatables/GMUvLw6oI9ViWe84"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "condition": "isNotEmpty"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userProviderId": "={{ $json.provider_id }}",
+            "userInfo": "=Headline: {{ $json.headline }}\nAbout: {{ $json.summary }}",
+            "userFullName": "={{ $json.first_name }} {{ $json.last_name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "googleApiKey",
+              "displayName": "googleApiKey",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "searchEngineCx",
+              "displayName": "searchEngineCx",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "unipileEndPoint",
+              "displayName": "unipileEndPoint",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "unipileApiKey",
+              "displayName": "unipileApiKey",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "unipileLinkedInAccountId",
+              "displayName": "unipileLinkedInAccountId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "userProviderId",
+              "displayName": "userProviderId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "calendlyMeetingLink",
+              "displayName": "calendlyMeetingLink",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "userInfo",
+              "displayName": "userInfo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "userFullName",
+              "displayName": "userFullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        5344,
+        704
+      ],
+      "id": "2561d8b7-3e77-42f8-8ff3-56115d200db3",
+      "name": "Upsert User Data"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1Elo5avFCufcjFRmRMnjqGK1MhTyCogLjmskk2ZTVBrI",
+          "mode": "list",
+          "cachedResultName": "Search Query",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Elo5avFCufcjFRmRMnjqGK1MhTyCogLjmskk2ZTVBrI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Elo5avFCufcjFRmRMnjqGK1MhTyCogLjmskk2ZTVBrI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        3696,
+        720
+      ],
+      "id": "fce0a780-4e01-44e6-b10e-b4873c445c5a",
+      "name": "Search Query Trigger",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "QtPCelosYuzQWEtk",
+          "name": "Dev _ Sasha Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dbaa14ce-5a5c-46f5-b49f-e051693a9ecc",
+              "leftValue": "={{ $json.City }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "464f609f-5671-41cc-b887-59bbb28ab7be",
+              "leftValue": "={{ $json.Industry }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "9a0888c9-692b-483a-bf25-67430c0a97c9",
+              "leftValue": "={{ $json.Designation }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3936,
+        720
+      ],
+      "id": "e5a3e2e7-2465-4b74-a537-8168324eab01",
+      "name": "If All Values are Provided",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        4224,
+        928
+      ],
+      "id": "fb158f38-46b7-46bb-a47c-d383e6db1e7d",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "content": "# AI-Powered LinkedIn Lead Generation & Engagement Suite - Complete Documentation\n\n## 📋 Overview\n\nThe **AI-Powered LinkedIn Lead Generation & Engagement Suite** is a high-sophistication n8n workflow designed to automate the end-to-end process of identifying, researching, and engaging with potential B2B leads on LinkedIn. It replaces the manual, time-consuming tasks of lead prospecting and personalized outreach with a streamlined, intelligent system.\n\nBy leveraging Google Custom Search for lead discovery, Unipile for deep LinkedIn profile data extraction, and Google Gemini AI for hyper-personalized message generation, this workflow creates a scalable outreach engine. It not only finds relevant profiles based on specific criteria like designation and industry but also crafts a strategic sequence of connection requests and follow-ups tailored to each individual's professional background.\n\n## 👥 Who Is This Workflow For?\n\n* **Sales Development Representatives (SDRs)** looking to scale their outbound prospecting without sacrificing personalization.\n* **Growth Marketers** building automated lead acquisition funnels for B2B services.\n* **Business Founders** who need to maintain a consistent outreach presence while focusing on operations.\n* **Recruiters** seeking an efficient way to identify and initiate high-quality contact with potential candidates.\n\n## 🎯 Problem Statement\n\nManual LinkedIn outreach is plagued by several inefficiencies:\n\n* **Prospecting Fatigue**: Manually searching and filtering for leads is slow and repetitive.\n* **Generic Outreach**: \"Spray and pray\" messages often result in low acceptance and response rates.\n* **Data Silos**: Manually moving lead data between LinkedIn and tracking sheets is prone to error.\n* **Inconsistent Follow-ups**: Maintaining a multi-stage message sequence for hundreds of leads is nearly impossible to track manually.\n\nThis workflow eliminates these barriers by automating discovery, data enrichment, and AI-driven personalization, ensuring every interaction feels researched and human.\n\n## ⚙️ How This Workflow Works\n\n### 1. Initialization and Parameter Setting\n\nThe workflow begins with a **Search Query Trigger** (likely a manual or scheduled input) that provides target criteria such as `Designation`, `Industry`, and `City`. The **Set Parameters** node captures these inputs and defines global variables including API keys for Google, Unipile, and specific search engine IDs.\n\n### 2. Lead Discovery via Google Search\n\nThe workflow uses the **Search Google for Leads** node (HTTP Request) to query the Google Custom Search API. It specifically targets LinkedIn profile URLs by using the `site:linkedin.com/in` operator combined with the user-defined industry and location parameters.\n\n### 3. Profile Data Enrichment\n\nFor each discovered URL, the workflow enters a loop:\n\n* **Unipile Integration**: It uses the **Unipile: Get User Profile Info** node to fetch the lead's full profile details, including their headline, \"About\" section, and recent experiences.\n* **Internal Reference**: It also fetches the user's own profile info to provide the AI with context for \"Who is reaching out\".\n\n### 4. AI Strategic Personalization\n\nThe core of the suite is the **AI Agent for Personalised Messages**. Powered by **Gemini 2.5-flash**, this agent analyzes both the sender's and the lead's profile data. It follows a strict \"Step-by-Step Operational Protocol\" to:\n\n* Identify 3-5 \"relevance hooks\" between the business and the lead.\n* Draft a 180-character connection request.\n* Draft a first DM and two value-driven follow-up messages.\n* Ensure the tone is consultative and peer-to-peer.\n\n### 5. Data Logging and Execution\n\nThe generated messages and lead data are appended to a Google Sheet (**LinkedIn Leads Data**) for tracking. Finally, the workflow uses Unipile to send the personalized messages directly on LinkedIn after a random delay (20-41 seconds) to mimic human behavior and protect account safety.\n\n## ✨ Key Benefits\n\n* **Hyper-Personalization at Scale**: Generates unique \"relevance hooks\" for every lead using advanced AI.\n* **Account Safety**: Incorporates random wait times to avoid LinkedIn's automated activity detection.\n* **Centralized Tracking**: Automatically logs all leads and generated content into Google Sheets.\n* **High Efficiency**: Processes up to 10 pages of search results (approx. 100 leads) per execution automatically.\n\n## 📦 Requirements\n\n### Technical Requirements\n\n* **n8n version**: 1.0.0 or higher.\n* **Required Nodes**: `Google Custom Search`, `Unipile`, `Google Sheets`, `AI Agent (LangChain)`, `Google Gemini`.\n* **External Accounts**: Google Cloud (Search & Gemini), Unipile, Google Workspace (Sheets).\n\n### Credentials & Authentication\n\n| Service | Credential Name | Scope/Permissions |\n| --- | --- | --- |\n| **Google Search** | Google API Key & CX ID | Custom Search API access |\n| **Unipile** | Unipile API Key | Access to LinkedIn account messaging/profile |\n| **Google Gemini** | Google Palm API | `models/gemini-2.5-flash` or `-lite` |\n| **Google Sheets** | Google Sheets OAuth2 | Read/Write access to designated spreadsheets |\n\n### API & Rate Limits\n\n* **Unipile**: Highly dependent on your LinkedIn account's health. Recommended to keep daily outreach under LinkedIn's soft limits (approx. 20-50 new connections/day).\n* **Google Search**: Free tier provides 100 queries/day.\n* **Gemini AI**: Standard rate limits apply based on your Google AI Studio tier.\n\n## 🔧 Setup Instructions\n\n### Step 1: External Service Setup\n\n1. **Google Custom Search**: Create a Programmable Search Engine at [Google CSE](https://cse.google.com/). Set \"Sites to search\" to `linkedin.com`. Get your `CX ID` and `API Key`.\n2. **Unipile**: Sign up at [Unipile](https://www.unipile.com/), connect your LinkedIn account, and generate an API Key.\n3. **Google AI Studio**: Obtain an API key for Gemini from [Google AI Studio](https://aistudio.google.com/).\n\n### Step 2: n8n Configuration\n\n1. In n8n, go to **Credentials** and add your Google Palm (Gemini), Google Sheets, and Unipile API keys.\n2. In the **Set Parameters** node, replace the following with your specific IDs:\n* `googleApiKey`\n* `searchEngineCx`\n* `unipileLinkedInAccountId`\n* `unipileApiKey`\n\n\n\n### Step 3: Node Configuration\n\nEnsure the **AI Agent** system prompt is correctly set to reference your business value. The current prompt is generic and should be slightly tuned if your service is highly niche.\n\n### Step 4: Testing & Activation\n\n1. Run the **Search Query Trigger** with one test lead profile.\n2. Monitor the **Loop Over Profiles** to ensure Unipile successfully fetches data.\n3. Verify the **Clean JSON Output** node correctly formats the AI response before the message is sent.\n\n## 🔒 Security & Compliance\n\n* **Account Protection**: The workflow uses a `Random Wait` node (20-41s) to prevent LinkedIn flagging your account for \"automated behavior\".\n* **Data Privacy**: This workflow processes PII (Personally Identifiable Information). Ensure your use case complies with **GDPR** (Europe) or **CCPA** (California) regarding data scraping and unsolicited outreach.\n* **Credential Storage**: Always use n8n's internal Credential Manager; never hardcode API keys directly into the `Set` nodes for production environments.\n\n## ⚠️ Troubleshooting\n\n* **Unipile 401/403 Error**: Your LinkedIn session in Unipile may have expired. Re-authenticate your LinkedIn account in the Unipile dashboard.\n* **Gemini JSON Error**: Sometimes the AI may include markdown formatting (like ```json). The **Clean JSON Output** node is designed to strip these, but if it fails, check the AI output in the execution logs.\n* **Google Search Results**: If no results are found, verify your `CX ID` is set to \"Search the entire web\" but restricted to the `linkedin.com/in` pattern.\n\n## 🔄 Maintenance & Optimization\n\n* **Weekly**: Check the **Google Sheet** to ensure no leads are failing at the \"Send Message\" stage.\n* **Monthly**: Review the AI-generated \"relevance hooks.\" If they become repetitive, update the **AI Agent's** system message with new case studies or service updates.\n* **Scaling**: To increase volume, use multiple Unipile accounts and rotate them using a \"Wait\" node or a schedule trigger to avoid account bans.",
+        "height": 2416,
+        "width": 1472,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1632,
+        -560
+      ],
+      "typeVersion": 1,
+      "id": "7b5b5e95-f572-46e3-b4de-5bc6b23c98dd",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set Parameters": {
+      "main": [
+        [
+          {
+            "node": "Unipile: Get User Identifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Profiles": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unipile: Get Profile Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5-flash Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent for Personalised Messages",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5-flash-lite Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent for Personalised Messages",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent for Personalised Messages": {
+      "main": [
+        [
+          {
+            "node": "Clean JSON Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean JSON Output": {
+      "main": [
+        [
+          {
+            "node": "Append to LinkedIn Leads Data Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Google for Leads": {
+      "main": [
+        [
+          {
+            "node": "Extract Profile Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append to LinkedIn Leads Data Sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait 5 Seconds after Append",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Values from Data Table": {
+      "main": [
+        [
+          {
+            "node": "Set Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5 Seconds after getting Identifier": {
+      "main": [
+        [
+          {
+            "node": "Unipile: Get User Profile Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Profile Link": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5 Seconds after Append": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unipile: Get User Identifier": {
+      "main": [
+        [
+          {
+            "node": "Wait 5 Seconds after getting Identifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unipile: Get Profile Info": {
+      "main": [
+        [
+          {
+            "node": "If Profile is Out of Network",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Profile is Out of Network": {
+      "main": [
+        [
+          {
+            "node": "AI Agent for Personalised Messages",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 5 Seconds before New Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5 Seconds before New Call": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unipile: Get User Profile Info": {
+      "main": [
+        [
+          {
+            "node": "Upsert User Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert User Data": {
+      "main": [
+        [
+          {
+            "node": "Search Google for Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Query Trigger": {
+      "main": [
+        [
+          {
+            "node": "If All Values are Provided",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If All Values are Provided": {
+      "main": [
+        [
+          {
+            "node": "Get Values from Data Table",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "Vsyj4lPuDw5RGiAq",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "05f89e96-e049-42bc-83cc-2a4e8f52a41d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5c585f2620b1e811fa88e890c331ab057400f88adebd1d8bd64feeac19ecaec8"
+  },
+  "nodeGroups": [],
+  "id": "SqnY9mx2Kgcb4ggy",
+  "tags": [
+    {
+      "updatedAt": "2026-05-16T13:06:54.125Z",
+      "createdAt": "2026-05-16T13:06:54.125Z",
+      "id": "RTxS4t6MhWlxGgSK",
+      "name": "LinkedIn"
+    },
+    {
+      "updatedAt": "2026-08-07T10:30:45.435Z",
+      "createdAt": "2026-05-16T12:55:37.724Z",
+      "id": "uSNTXipxQbvF4Txs",
+      "name": "Main Workflow"
+    }
+  ]
+}

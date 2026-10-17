@@ -1,0 +1,777 @@
+{
+  "name": "LinkedIn First Personalised Message Sender",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Leads Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Provider ID",
+              "lookupValue": "={{ $json.items[0].member_id }}"
+            },
+            {
+              "lookupColumn": "Invite Sent",
+              "lookupValue": "Yes"
+            },
+            {
+              "lookupColumn": "Invite Status",
+              "lookupValue": "Pending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1600,
+        240
+      ],
+      "id": "9fdd8909-c49f-4985-9536-b4257b5d889d",
+      "name": "Get Matching Profile",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dpAKkemestLg8nbQ",
+          "name": "Dev _ Sasha Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Set Parameters2').item.json.unipileEndPoint }}/chats",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $('Set Parameters2').item.json.unipileApiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "attendees_ids",
+              "value": "={{ $json[\"Provider ID\"] }}"
+            },
+            {
+              "name": "account_id",
+              "value": "={{ $('Set Parameters2').item.json.unipileAccountId }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json[\"Personalized Message\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2048,
+        320
+      ],
+      "id": "a4497163-e94e-4c99-9085-4bbe6eae8b34",
+      "name": "Unipile: Send Message",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Leads Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l2F82OhMWnrO-8NoawbM2fis1ZNrz4aRhUAsMAob2Eg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Profile URL": "={{ $('Get Matching Profile').item.json[\"Profile URL\"] }}",
+            "Message Sent": "Yes",
+            "Chat ID": "={{ $('Unipile: Send Message').item.json.chat_id }}",
+            "Chat History": "=\nUser: {{ $('Set Parameters2').item.json.userFullName }}\nMessage: {{ $('Get Matching Profile').item.json['Personalized Message'] }}",
+            "Network Distance": "FIRST_DEGREE",
+            "Invite Status": "Accepted"
+          },
+          "matchingColumns": [
+            "Profile URL"
+          ],
+          "schema": [
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Designation",
+              "displayName": "Designation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Name",
+              "displayName": "Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Profile URL",
+              "displayName": "Profile URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Profile Info",
+              "displayName": "Profile Info",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Provider ID",
+              "displayName": "Provider ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Network Distance",
+              "displayName": "Network Distance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invite Sent",
+              "displayName": "Invite Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invite Status",
+              "displayName": "Invite Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Personalized Message",
+              "displayName": "Personalized Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message Sent",
+              "displayName": "Message Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Chat ID",
+              "displayName": "Chat ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Chat History",
+              "displayName": "Chat History",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Calendly Link Sent",
+              "displayName": "Calendly Link Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2272,
+        320
+      ],
+      "id": "d809e0e6-4d9f-459d-a81e-22f792cb43cc",
+      "name": "Update Row in LinkedIn Leads Data",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dpAKkemestLg8nbQ",
+          "name": "Dev _ Sasha Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        224
+      ],
+      "id": "b7078cee-5fcb-449b-b143-2b27cbbeb04e",
+      "name": "10 AM Schedule Trigger",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Set Parameters2').item.json.unipileEndPoint }}/users/relations",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $('Set Parameters2').item.json.unipileAccountId }}"
+            },
+            {
+              "name": "limit",
+              "value": "25"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $('Set Parameters2').item.json.unipileApiKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1152,
+        320
+      ],
+      "id": "f3e09664-412c-47a0-8d9e-ad6134099f2c",
+      "name": "Unipile: Get Connections",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        416
+      ],
+      "id": "99c62450-29c3-4449-b442-963fad90180f",
+      "name": "6 PM Schedule Trigger",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1824,
+        240
+      ],
+      "id": "b10a958f-e9b9-492e-af9f-a8261d807598",
+      "name": "Wait 5 Seconds after Getting Connections",
+      "webhookId": "2242ddc2-e8a4-4830-9fca-437e0e2dd628",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1e4ef957-b3d2-42fa-b6ed-fea411c4ac1b",
+              "name": "userFullName",
+              "value": "={{ $json.userFullName }}",
+              "type": "string"
+            },
+            {
+              "id": "190847aa-8b99-409f-a2f8-4a059ab705ba",
+              "name": "userProviderId",
+              "value": "={{ $json.userProviderId }}",
+              "type": "string"
+            },
+            {
+              "id": "087dca03-b3f0-4a41-9a3c-f44074dccbee",
+              "name": "unipileAccountId",
+              "value": "={{ $json.unipileLinkedInAccountId }}",
+              "type": "string"
+            },
+            {
+              "id": "8620f81b-9ebb-4625-99e1-50df9039c82b",
+              "name": "unipileEndPoint",
+              "value": "={{ $json.unipileEndPoint }}",
+              "type": "string"
+            },
+            {
+              "id": "0ba10316-1e3c-4eee-b71d-505e5e86630c",
+              "name": "unipileApiKey",
+              "value": "={{ $json.unipileApiKey }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        320
+      ],
+      "id": "7359e16d-df98-4fc8-b9ab-d769a1faae40",
+      "name": "Set Parameters2",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "GMUvLw6oI9ViWe84",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Automation Data",
+          "cachedResultUrl": "/projects/s6pdK34errV0KGOO/datatables/GMUvLw6oI9ViWe84"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        704,
+        320
+      ],
+      "id": "2decc6b2-ebf1-47db-94b8-b733653b3dbb",
+      "name": "Get Values from Data Table2",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1376,
+        320
+      ],
+      "id": "20c2222c-a762-40fe-8f20-da084baf5e42",
+      "name": "Loop Over Profiles2",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        48
+      ],
+      "id": "01592e5b-d707-4b95-a4bb-4a8106c97ff1",
+      "name": "No Operation, do nothing3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This code generates a random integer between a specified minimum and maximum value (inclusive).\n// It is structured to return a standard n8n item object.\n\n// Define the range (inclusive)\nconst MIN = Math.floor(Math.random() * (30 - 19 + 1)) + 19;\nconst MAX = Math.floor(Math.random() * (40 - 31 + 1)) + 31;\n\n/**\n * Generates a truly random integer between min and max, inclusive.\n */\nfunction getRandomIntInclusive(min, max) {\n  // Ensure min and max are integers\n  min = Math.ceil(min);\n  max = Math.floor(max);\n  // The maximum is inclusive and the minimum is inclusive\n  return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\n// Generate the random number\nconst randomNumber = getRandomIntInclusive(MIN, MAX);\n\n// Output the result in the standard n8n format: an array of items.\n// The next node can access this value using the expression: {{ $json.randomNumber }}\nreturn [{ json: { randomNumber: randomNumber } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2496,
+        320
+      ],
+      "id": "86ef46b9-c19a-41fb-874c-b407a3b917df",
+      "name": "Random 19-40 Seconds1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.randomNumber }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2720,
+        384
+      ],
+      "id": "4d84c6e3-b7ee-4cee-b8d9-a4f861697d2a",
+      "name": "Random Wait for 19-40 Seconds1",
+      "webhookId": "2242ddc2-e8a4-4830-9fca-437e0e2dd628",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "// This code generates a random integer between a specified minimum and maximum value (inclusive).\n// It is structured to return a standard n8n item object.\n\n// Define the range (inclusive)\nconst MIN = Math.floor(Math.random() * (31 - 20 + 1)) + 20;\nconst MAX = Math.floor(Math.random() * (41 - 32 + 1)) + 32;\n\n/**\n * Generates a truly random integer between min and max, inclusive.\n */\nfunction getRandomIntInclusive(min, max) {\n  // Ensure min and max are integers\n  min = Math.ceil(min);\n  max = Math.floor(max);\n  // The maximum is inclusive and the minimum is inclusive\n  return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\n// Generate the random number\nconst randomNumber = getRandomIntInclusive(MIN, MAX);\n\n// Output the result in the standard n8n format: an array of items.\n// The next node can access this value using the expression: {{ $json.randomNumber }}\nreturn [{ json: { randomNumber: randomNumber } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        320
+      ],
+      "id": "9a5ea401-845d-4292-a4b0-e24dd28590b9",
+      "name": "Random 20-41 Seconds1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.randomNumber }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        320
+      ],
+      "id": "4b29eabb-cd37-4f91-83e2-424dfea6a26b",
+      "name": "Random Wait for 20-41 Seconds1",
+      "webhookId": "2242ddc2-e8a4-4830-9fca-437e0e2dd628",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Matching Profile": {
+      "main": [
+        [
+          {
+            "node": "Wait 5 Seconds after Getting Connections",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unipile: Send Message": {
+      "main": [
+        [
+          {
+            "node": "Update Row in LinkedIn Leads Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Profiles2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Row in LinkedIn Leads Data": {
+      "main": [
+        [
+          {
+            "node": "Random 19-40 Seconds1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10 AM Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Random 20-41 Seconds1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unipile: Get Connections": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Profiles2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6 PM Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Random 20-41 Seconds1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5 Seconds after Getting Connections": {
+      "main": [
+        [
+          {
+            "node": "Unipile: Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Parameters2": {
+      "main": [
+        [
+          {
+            "node": "Unipile: Get Connections",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Values from Data Table2": {
+      "main": [
+        [
+          {
+            "node": "Set Parameters2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Profiles2": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Matching Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random 19-40 Seconds1": {
+      "main": [
+        [
+          {
+            "node": "Random Wait for 19-40 Seconds1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random Wait for 19-40 Seconds1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Profiles2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random 20-41 Seconds1": {
+      "main": [
+        [
+          {
+            "node": "Random Wait for 20-41 Seconds1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random Wait for 20-41 Seconds1": {
+      "main": [
+        [
+          {
+            "node": "Get Values from Data Table2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "Vsyj4lPuDw5RGiAq",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "513415f6-aba6-4e15-a834-da5dee9e7ee0",
+  "meta": {
+    "instanceId": "5c585f2620b1e811fa88e890c331ab057400f88adebd1d8bd64feeac19ecaec8"
+  },
+  "nodeGroups": [],
+  "id": "lZPe0cnvVx90tULJ",
+  "tags": [
+    {
+      "updatedAt": "2026-05-16T13:06:54.125Z",
+      "createdAt": "2026-05-16T13:06:54.125Z",
+      "id": "RTxS4t6MhWlxGgSK",
+      "name": "LinkedIn"
+    },
+    {
+      "updatedAt": "2026-08-07T10:30:45.435Z",
+      "createdAt": "2026-05-16T12:55:37.724Z",
+      "id": "uSNTXipxQbvF4Txs",
+      "name": "Main Workflow"
+    }
+  ]
+}
