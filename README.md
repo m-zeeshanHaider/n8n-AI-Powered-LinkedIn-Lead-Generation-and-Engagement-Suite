@@ -2,15 +2,13 @@
 
 Four n8n workflows that find LinkedIn leads, send connection requests, message new connections, and answer incoming chats. Google Sheets stores the lead data, Unipile performs the LinkedIn actions, and Google Gemini writes the messages.
 
+![Cartoon robot with n8n and LinkedIn logos surrounded by icons for lead search, connections, messaging, and scheduling](images/thumbnail.png)
+
 ## Overview
 
 The suite covers outreach in four stages. The **LinkedIn Lead Generator** uses the Google Custom Search API to find LinkedIn profiles that match a designation, industry, and city. It reads each profile through Unipile and logs it to a Google Sheets leads spreadsheet. The **LinkedIn Connection Invite Sender** sends connection requests to leads outside the user's network. The **LinkedIn First Personalised Message Sender** messages leads who accepted a request. The **LinkedIn Conversational AI Agent** receives replies through an n8n webhook and answers them with a Google Gemini agent.
 
 All four workflows read shared settings from an n8n Data Table and use Wait nodes with random delays between actions. Each workflow references an error workflow in its settings.
-
-The images below show the n8n canvas of each workflow.
-
-![Cartoon robot with n8n and LinkedIn logos surrounded by icons for lead search, connections, messaging, and scheduling](images/thumbnail.png)
 
 LinkedIn Lead Generator:
 
